@@ -156,13 +156,18 @@ export default function CreateWebsitePage() {
   ]
 
   const handleCreateWebsite = async () => {
-    if (!selectedPlan || !websiteName.trim()) {
-      showError("กรุณากรอกข้อมูลให้ครบ", "กรุณาเลือกแพ็กเกจและกรอกชื่อเว็บไซต์")
+    if (!selectedPlan || !websiteName.trim() || !subdomain.trim()) {
+      showError("กรุณากรอกข้อมูลให้ครบ", "กรุณาเลือกแพ็กเกจ กรอกชื่อเว็บไซต์ และโดเมนย่อย")
+      return
+    }
+
+    if (subdomainError) {
+      showError("โดเมนไม่ถูกต้อง", "กรุณาเลือกโดเมนย่อยที่ใช้ได้")
       return
     }
 
     setIsCreating(true)
-    console.log("[CREATE] Starting website creation:", { selectedPlan, websiteName })
+    console.log("[CREATE] Starting website creation:", { selectedPlan, websiteName, subdomain })
 
     try {
       const selectedPlanData = websitePlans.find((plan) => plan.id === selectedPlan)
@@ -181,6 +186,7 @@ export default function CreateWebsitePage() {
         plan: selectedPlanData?.name || selectedPlan,
         thumbnail: planThumbnail[selectedPlan] || "/portfolio-website-showcase.png",
         description: selectedPlanData?.description || "",
+        subdomain: subdomain.trim(),
       })
 
       console.log("[CREATE] Result:", result)
@@ -190,11 +196,12 @@ export default function CreateWebsitePage() {
         console.log("[CREATE] Success! Slug:", result.slug)
         showSuccess(
           `สร้างเว็บไซต์ "${websiteName}" สำเร็จ!`,
-          `URL: vixahub.web.app/${result.slug}`
+          `URL: ${subdomain}.vixahub-2.vercel.app`
         )
         
         // Reset form
         setWebsiteName("")
+        setSubdomain("")
         setSelectedPlan(null)
         
         // Redirect กลับไปหน้า My Websites หลัง 1.5 วินาที
@@ -226,18 +233,43 @@ export default function CreateWebsitePage() {
       >
         <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-xl p-8">
           <h2 className="text-2xl font-bold text-white mb-6">ข้อมูลเว็บไซต์</h2>
-          <div>
-            <label className="block text-gray-300 text-sm font-medium mb-2">ชื่อเว็บไซต์</label>
-            <input
-              type="text"
-              value={websiteName}
-              onChange={(e) => setWebsiteName(e.target.value)}
-              placeholder="กรอกชื่อเว็บไซต์ของคุณ"
-              className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
-            />
-            <p className="text-gray-500 text-sm mt-2">
-              URL ของเว็บไซต์: <span className="text-purple-400 font-medium">vixahub.web.app/{previewSlug || "ชื่อเว็บไซต์"}</span>
-            </p>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-gray-300 text-sm font-medium mb-2">ชื่อเว็บไซต์</label>
+              <input
+                type="text"
+                value={websiteName}
+                onChange={(e) => setWebsiteName(e.target.value)}
+                placeholder="กรอกชื่อเว็บไซต์ของคุณ"
+                className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-gray-300 text-sm font-medium mb-2">
+                โดเมนย่อย (Subdomain)
+                {isCheckingSubdomain && (
+                  <span className="ml-2 text-blue-400 text-xs">กำลังตรวจสอบ...</span>
+                )}
+              </label>
+              <input
+                type="text"
+                value={subdomain}
+                onChange={(e) => setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                placeholder="กรอกโดเมนย่อยที่ต้องการ (เช่น test, gang-system)"
+                className={`w-full px-4 py-3 bg-gray-800/50 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 ${
+                  subdomainError ? 'border-red-500' : 'border-gray-600/50'
+                }`}
+              />
+              {subdomainError && (
+                <p className="text-red-400 text-sm mt-2">{subdomainError}</p>
+              )}
+              <p className="text-gray-500 text-sm mt-2">
+                URL ของเว็บไซต์: <span className="text-purple-400 font-medium">
+                  {subdomain ? `${subdomain}.vixahub-2.vercel.app` : 'your-subdomain.vixahub-2.vercel.app'}
+                </span>
+              </p>
+            </div>
           </div>
         </div>
       </div>
