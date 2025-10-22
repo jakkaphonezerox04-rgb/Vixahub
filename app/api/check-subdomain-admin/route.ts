@@ -40,10 +40,23 @@ export async function GET(request: NextRequest) {
     // ตรวจสอบในฐานข้อมูลผ่าน REST API
     console.log(`[API-ADMIN] Querying Firestore via REST API for subdomain: ${subdomain}`)
     
-    // สำหรับตอนนี้ ให้ subdomain ที่ขึ้นต้นด้วย 'vixahub' เป็น unavailable (เพื่อทดสอบ)
-    // TODO: เปลี่ยนเป็น Firebase query จริงเมื่อแก้ไข authentication
-    if (subdomain.startsWith('vixahub')) {
-      console.log(`[API-ADMIN] Subdomain ${subdomain} is already taken (test rule)`)
+    const firebaseConfig = {
+      apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyDsxkKY3M9476plC9NUIIeuXrPfH0EUB8Y",
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "vixahub"
+    }
+
+    const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/websites`
+    const queryParams = new URLSearchParams({
+      'where': `subdomain=="${subdomain}"`
+    })
+
+    const response = await fetch(`${url}?${queryParams}`)
+    const data = await response.json()
+
+    console.log(`[API-ADMIN] Firestore response:`, data)
+    
+    if (data.documents && data.documents.length > 0) {
+      console.log(`[API-ADMIN] Subdomain ${subdomain} is already taken`)
       return NextResponse.json({ 
         available: false, 
         error: 'โดเมนนี้มีคนใช้แล้ว กรุณาเลือกโดเมนอื่น' 
