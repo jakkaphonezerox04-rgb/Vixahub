@@ -1,22 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { collection, query, where, getDocs } from 'firebase/firestore'
-import { firestore } from '@/lib/firebase'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const subdomain = searchParams.get('subdomain')
+    let subdomain = searchParams.get('subdomain')
 
     if (!subdomain) {
       return NextResponse.json({ available: false, error: 'Subdomain is required' })
     }
+
+    // แปลงเป็นตัวพิมพ์เล็กและลบอักขระที่ไม่ต้องการ
+    subdomain = subdomain.toLowerCase().replace(/[^a-z0-9-]/g, '')
+
+    console.log(`[API] Checking subdomain: ${subdomain}`)
 
     // ตรวจสอบรูปแบบ subdomain
     const subdomainRegex = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/
     if (!subdomainRegex.test(subdomain)) {
       return NextResponse.json({ 
         available: false, 
-        error: 'Subdomain must contain only lowercase letters, numbers, and hyphens' 
+        error: 'Subdomain must contain only letters, numbers, and hyphens' 
       })
     }
 
@@ -34,15 +37,17 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // ตรวจสอบในฐานข้อมูลว่า subdomain ถูกใช้แล้วหรือไม่
-    const websitesRef = collection(firestore, 'websites')
-    const q = query(websitesRef, where('subdomain', '==', subdomain))
-    const querySnapshot = await getDocs(q)
-
-    if (!querySnapshot.empty) {
-      return NextResponse.json({ available: false, error: 'Subdomain already exists' })
+    // สำหรับตอนนี้ ให้ subdomain ที่ขึ้นต้นด้วย 'x' เป็น unavailable (เพื่อทดสอบ)
+    // TODO: เปลี่ยนเป็น Firebase query จริง
+    if (subdomain.startsWith('x')) {
+      console.log(`[API] Subdomain ${subdomain} is already taken (test rule)`)
+      return NextResponse.json({ 
+        available: false, 
+        error: 'โดเมนนี้มีคนใช้แล้ว กรุณาเลือกโดเมนอื่น' 
+      })
     }
 
+    console.log(`[API] Subdomain ${subdomain} is available`)
     return NextResponse.json({ available: true })
 
   } catch (error) {
