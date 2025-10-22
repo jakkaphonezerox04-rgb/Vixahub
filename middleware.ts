@@ -7,8 +7,13 @@ export function middleware(request: NextRequest) {
   // ตรวจสอบว่าเป็น subdomain หรือไม่
   const subdomain = hostname.split('.')[0]
   
-  // ถ้าเป็น subdomain และไม่ใช่ www หรือ api
-  if (subdomain && subdomain !== 'www' && subdomain !== 'api' && !hostname.includes('localhost')) {
+  // ถ้าเป็น subdomain และไม่ใช่ www หรือ api และไม่ใช่ main domain
+  if (subdomain && 
+      subdomain !== 'www' && 
+      subdomain !== 'api' && 
+      !hostname.includes('localhost') &&
+      hostname.includes('vercel.app') &&
+      subdomain !== 'vixahub-2') {
     // เปลี่ยน path เป็น /[slug] โดยใช้ subdomain เป็น slug
     url.pathname = `/${subdomain}${url.pathname}`
     return NextResponse.rewrite(url)
@@ -26,6 +31,7 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    // Temporarily disable middleware to debug main page issue
+    // '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 }
