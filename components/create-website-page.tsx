@@ -10,8 +10,11 @@ export default function CreateWebsitePage() {
   const [isVisible, setIsVisible] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
   const [websiteName, setWebsiteName] = useState("")
+  const [subdomain, setSubdomain] = useState("")
   const [previewSlug, setPreviewSlug] = useState("")
   const [isCreating, setIsCreating] = useState(false)
+  const [isCheckingSubdomain, setIsCheckingSubdomain] = useState(false)
+  const [subdomainError, setSubdomainError] = useState("")
   const router = useRouter()
   const { showSuccess, showError } = useToast()
 
@@ -27,6 +30,43 @@ export default function CreateWebsitePage() {
       setPreviewSlug("")
     }
   }, [websiteName])
+
+  // ตรวจสอบ subdomain availability
+  const checkSubdomainAvailability = async (subdomain: string) => {
+    if (!subdomain.trim()) {
+      setSubdomainError("")
+      return
+    }
+
+    setIsCheckingSubdomain(true)
+    setSubdomainError("")
+
+    try {
+      // ตรวจสอบ subdomain ผ่าน API
+      const response = await fetch(`/api/check-subdomain?subdomain=${subdomain}`)
+      const data = await response.json()
+      
+      if (!data.available) {
+        setSubdomainError("โดเมนนี้มีคนใช้แล้ว กรุณาเลือกโดเมนอื่น")
+      }
+    } catch (error) {
+      console.error("Error checking subdomain:", error)
+      setSubdomainError("ไม่สามารถตรวจสอบโดเมนได้")
+    } finally {
+      setIsCheckingSubdomain(false)
+    }
+  }
+
+  // ตรวจสอบ subdomain เมื่อมีการเปลี่ยนแปลง
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (subdomain.trim()) {
+        checkSubdomainAvailability(subdomain)
+      }
+    }, 500)
+
+    return () => clearTimeout(timeoutId)
+  }, [subdomain])
 
   const websitePlans = [
     {

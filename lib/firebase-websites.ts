@@ -23,6 +23,7 @@ import { createSlug, validateSlug, generateUniqueSlug } from './slug-utils'
 export interface Website {
   id: string
   slug: string
+  subdomain: string
   name: string
   url: string
   plan: string
@@ -158,6 +159,7 @@ export async function createWebsite(data: {
   plan: string
   thumbnail: string
   description: string
+  subdomain: string
 }): Promise<{ success: boolean; website?: Website; error?: string; slug?: string }> {
   try {
     // ตรวจสอบว่า user ล็อกอินหรือไม่
@@ -170,6 +172,12 @@ export async function createWebsite(data: {
     console.log('[FIREBASE] Creating website for user:', user.uid)
     console.log('[FIREBASE] Data:', data)
     
+    // ตรวจสอบ subdomain availability
+    const subdomainAvailable = await checkSubdomainAvailability(data.subdomain)
+    if (!subdomainAvailable) {
+      return { success: false, error: 'โดเมนนี้มีคนใช้แล้ว กรุณาเลือกโดเมนอื่น' }
+    }
+
     // สร้าง slug จากชื่อเว็บไซต์
     let slug = createSlug(data.name)
     console.log('[FIREBASE] Initial slug:', slug)
@@ -197,8 +205,9 @@ export async function createWebsite(data: {
     
     const website: Omit<Website, 'id'> = {
       slug,
+      subdomain: data.subdomain,
       name: data.name.trim(),
-      url: `https://vixahub.web.app/${slug}`,
+      url: `https://${data.subdomain}.vixahub-xxx.vercel.app`,
       plan: data.plan,
       status: 'active',
       createdDate: now.toLocaleDateString('th-TH', { 
@@ -307,6 +316,21 @@ export async function deleteWebsite(websiteId: string): Promise<{ success: boole
   } catch (error) {
     console.error('Error deleting website:', error)
     return { success: false, error: 'เกิดข้อผิดพลาดในการลบเว็บไซต์' }
+  }
+}
+
+/**
+ * ตรวจสอบ subdomain availability
+ */
+export async function checkSubdomainAvailability(subdomain: string): Promise<boolean> {
+  try {
+    const websitesRef = collection(firestore, WEBSITES_COLLECTION)
+    const q = query(websitesRef, where('subdomain', '==', subdomain))
+    const querySnapshot = await getDocs(q)
+    return querySnapshot.empty
+  } catch (error) {
+    console.error('Error checking subdomain availability:', error)
+    return false
   }
 }
 
