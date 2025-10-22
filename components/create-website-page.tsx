@@ -161,6 +161,12 @@ export default function CreateWebsitePage() {
       return
     }
 
+    // ตรวจสอบ subdomain อีกครั้งก่อนสร้าง
+    if (isCheckingSubdomain) {
+      showError("กำลังตรวจสอบโดเมน", "กรุณารอสักครู่")
+      return
+    }
+
     if (subdomainError) {
       showError("โดเมนไม่ถูกต้อง", "กรุณาเลือกโดเมนย่อยที่ใช้ได้")
       return
@@ -170,6 +176,16 @@ export default function CreateWebsitePage() {
     console.log("[CREATE] Starting website creation:", { selectedPlan, websiteName, subdomain })
 
     try {
+      // ตรวจสอบ subdomain อีกครั้งก่อนสร้าง
+      console.log("[CREATE] Double-checking subdomain availability...")
+      const response = await fetch(`/api/check-subdomain?subdomain=${subdomain}`)
+      const data = await response.json()
+      
+      if (!data.available) {
+        showError("โดเมนไม่สามารถใช้ได้", data.error || "โดเมนนี้มีคนใช้แล้ว กรุณาเลือกโดเมนอื่น")
+        return
+      }
+
       const selectedPlanData = websitePlans.find((plan) => plan.id === selectedPlan)
 
       const planThumbnail: Record<string, string> = {
