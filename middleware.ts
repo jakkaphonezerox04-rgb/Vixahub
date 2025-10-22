@@ -16,6 +16,7 @@ export function middleware(request: NextRequest) {
       subdomain !== 'vixahub-2') {
     // เปลี่ยน path เป็น /[slug] โดยใช้ subdomain เป็น slug
     url.pathname = `/${subdomain}${url.pathname}`
+    console.log(`[MIDDLEWARE] Rewriting ${hostname}${request.nextUrl.pathname} to ${url.pathname}`)
     return NextResponse.rewrite(url)
   }
   

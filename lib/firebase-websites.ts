@@ -237,6 +237,69 @@ export async function createWebsite(data: {
     
     console.log('[FIREBASE] Website saved successfully!')
     
+    // สร้างข้อมูล cloned site ใน cloned_sites collection
+    console.log('[FIREBASE] Creating cloned site data...')
+    const clonedSiteRef = doc(firestore, 'cloned_sites', data.subdomain)
+    const clonedSiteData = {
+      websiteId: websiteId,
+      subdomain: data.subdomain,
+      slug: slug,
+      name: data.name.trim(),
+      plan: data.plan,
+      status: 'active',
+      userId: user.uid,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      // สร้างข้อมูลเริ่มต้นสำหรับ cloned site
+      settings: {
+        site_settings: {
+          siteName: data.name.trim(),
+          siteDescription: data.description,
+          siteLogo: '',
+          siteFavicon: '',
+          primaryColor: '#8B5CF6',
+          secondaryColor: '#06B6D4',
+          fontFamily: 'Kanit',
+          customCSS: '',
+          customJS: '',
+          analyticsCode: '',
+          seoTitle: data.name.trim(),
+          seoDescription: data.description,
+          seoKeywords: '',
+          socialMedia: {
+            facebook: '',
+            twitter: '',
+            instagram: '',
+            youtube: '',
+            tiktok: ''
+          },
+          contactInfo: {
+            email: '',
+            phone: '',
+            address: '',
+            website: ''
+          },
+          leaveTypes: ['ป่วย', 'ลากิจ', 'ลาพักผ่อน', 'อื่นๆ'],
+          deliveryTypes: ['อาหาร', 'ของใช้', 'เอกสาร', 'อื่นๆ'],
+          reportTypes: ['ปัญหาทางเทคนิค', 'ข้อเสนอแนะ', 'การใช้งาน', 'อื่นๆ'],
+          fineItems: [
+            { name: 'มาสาย', amount: 50 },
+            { name: 'ไม่มาเรียน', amount: 100 },
+            { name: 'ไม่ส่งงาน', amount: 200 }
+          ],
+          webhookUrls: {
+            leaveWebhookUrl: '',
+            deliveryWebhookUrl: '',
+            reportWebhookUrl: '',
+            fineWebhookUrl: ''
+          }
+        }
+      }
+    }
+    
+    await setDoc(clonedSiteRef, clonedSiteData)
+    console.log('[FIREBASE] Cloned site data created successfully!')
+    
     return { 
       success: true, 
       website: { id: websiteId, ...website } as Website,
