@@ -1,0 +1,14 @@
+# คำสั่งสำหรับเชื่อมต่อกับ GitHub Repository
+# แทนที่ YOUR_USERNAME ด้วยชื่อผู้ใช้ GitHub ของคุณ
+
+# 1. เชื่อมต่อกับ GitHub repository
+git remote add origin https://github.com/YOUR_USERNAME/VIXAHUB2.git
+
+# 2. ตั้งชื่อ branch เป็น main
+git branch -M main
+
+# 3. Push โค้ดไป GitHub
+git push -u origin main
+
+# 4. ตรวจสอบการเชื่อมต่อ
+git remote -v
