@@ -207,7 +207,7 @@ export async function createWebsite(data: {
       slug,
       subdomain: data.subdomain,
       name: data.name.trim(),
-      url: `https://${data.subdomain}.vixahub-2.vercel.app`,
+      url: `https://vixahub-2.vercel.app/${data.subdomain}`,
       plan: data.plan,
       status: 'active',
       createdDate: now.toLocaleDateString('th-TH', { 

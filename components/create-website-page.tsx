@@ -210,10 +210,10 @@ export default function CreateWebsitePage() {
       if (result.success && result.slug) {
         // แสดงข้อความสำเร็จ
         console.log("[CREATE] Success! Slug:", result.slug)
-        showSuccess(
-          `สร้างเว็บไซต์ "${websiteName}" สำเร็จ!`,
-          `URL: ${subdomain}.vixahub-2.vercel.app`
-        )
+                showSuccess(
+                  `สร้างเว็บไซต์ "${websiteName}" สำเร็จ!`,
+                  `URL: vixahub-2.vercel.app/${subdomain}`
+                )
         
         // Reset form
         setWebsiteName("")
@@ -282,7 +282,7 @@ export default function CreateWebsitePage() {
               )}
               <p className="text-gray-500 text-sm mt-2">
                 URL ของเว็บไซต์: <span className="text-purple-400 font-medium">
-                  {subdomain ? `${subdomain}.vixahub-2.vercel.app` : 'your-subdomain.vixahub-2.vercel.app'}
+                  {subdomain ? `vixahub-2.vercel.app/${subdomain}` : 'vixahub-2.vercel.app/your-subdomain'}
                 </span>
               </p>
             </div>
