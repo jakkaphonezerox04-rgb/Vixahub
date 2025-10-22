@@ -1,0 +1,34 @@
+[build]
+  command = "npm run build"
+  publish = "out"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "max-age=31536000"
+    Content-Type = "application/javascript"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "max-age=31536000"
+    Content-Type = "text/css"
+
+[[headers]]
+  for = "/*.woff2"
+  [headers.values]
+    Cache-Control = "max-age=31536000"
+    Content-Type = "font/woff2"
+
+[[headers]]
+  for = "/*.woff"
+  [headers.values]
+    Cache-Control = "max-age=31536000"
+    Content-Type = "font/woff"
+
+

@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --text-color: #ffffff;
+  --theme-color: #a855f7;
+  --bg-color: #1a1a2e;
+}
+
+/* Apply custom colors to cloned sites */
+[data-cloned-site="true"] {
+  color: var(--text-color) !important;
+}
+
+[data-cloned-site="true"] h1,
+[data-cloned-site="true"] h2,
+[data-cloned-site="true"] h3,
+[data-cloned-site="true"] p,
+[data-cloned-site="true"] span,
+[data-cloned-site="true"] div,
+[data-cloned-site="true"] label,
+[data-cloned-site="true"] td,
+[data-cloned-site="true"] th {
+  color: inherit;
+}
+
+/* Override Tailwind text colors */
+[data-cloned-site="true"] .text-white,
+[data-cloned-site="true"] .text-gray-300,
+[data-cloned-site="true"] .text-gray-400 {
+  color: var(--text-color) !important;
+}
+
+/* Keep specific colors for buttons and accents */
+[data-cloned-site="true"] .text-purple-400,
+[data-cloned-site="true"] .text-blue-400,
+[data-cloned-site="true"] .text-green-400,
+[data-cloned-site="true"] .text-red-400,
+[data-cloned-site="true"] .text-yellow-400 {
+  color: var(--theme-color) !important;
+}
+
+/* Button colors */
+[data-cloned-site="true"] .bg-purple-600,
+[data-cloned-site="true"] .bg-blue-600 {
+  background-color: var(--theme-color) !important;
+}
+
+[data-cloned-site="true"] .border-purple-500,
+[data-cloned-site="true"] .border-blue-500 {
+  border-color: var(--theme-color) !important;
+}
