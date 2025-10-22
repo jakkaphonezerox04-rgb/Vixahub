@@ -25,10 +25,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  // Disable console logs to prevent debugging information from showing in F12
-  if (typeof window !== 'undefined') {
-    disableConsoleCompletely()
-  }
+  // Console disabling is handled by ConsoleDisabler component on client-side only
 
   return (
     <html lang="th">
