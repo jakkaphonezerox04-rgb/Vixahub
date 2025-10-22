@@ -47,7 +47,7 @@ export default function CreateWebsitePage() {
       const data = await response.json()
       
       if (!data.available) {
-        setSubdomainError("โดเมนนี้มีคนใช้แล้ว กรุณาเลือกโดเมนอื่น")
+        setSubdomainError(data.error || "โดเมนนี้มีคนใช้แล้ว กรุณาเลือกโดเมนอื่น")
       }
     } catch (error) {
       console.error("Error checking subdomain:", error)
