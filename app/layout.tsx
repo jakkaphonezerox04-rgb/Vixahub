@@ -33,9 +33,7 @@ export default function RootLayout({
   return (
     <html lang="th">
       <head>
-        {process.env.NODE_ENV === 'development' && (
-          <script src="/disable-console.js" />
-        )}
+        {/* Console disabling is handled by ConsoleDisabler component */}
       </head>
       <body className={kanit.className}>
         <ConsoleDisabler />
