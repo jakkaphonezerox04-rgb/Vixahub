@@ -23,6 +23,32 @@ export function middleware(request: NextRequest) {
     return NextResponse.rewrite(url)
   }
   
+  // Path-based routing: ตรวจสอบ path ที่เริ่มต้นด้วย /[slug]
+  const pathSegments = url.pathname.split('/').filter(Boolean)
+  if (pathSegments.length > 0) {
+    const firstSegment = pathSegments[0]
+    
+    // ตรวจสอบว่าเป็น slug ที่มีอยู่หรือไม่ (ไม่ใช่ api, _next, favicon.ico)
+    if (firstSegment && 
+        !firstSegment.startsWith('_') && 
+        firstSegment !== 'api' && 
+        firstSegment !== 'favicon.ico' &&
+        firstSegment !== 'robots.txt' &&
+        firstSegment !== 'sitemap.xml') {
+      
+      // ตรวจสอบว่าเป็นหน้าเว็บหลักหรือไม่
+      if (url.pathname === '/' || url.pathname === '') {
+        return NextResponse.next()
+      }
+      
+      // Rewrite path เป็น /[slug] format
+      const remainingPath = url.pathname.substring(`/${firstSegment}`.length)
+      url.pathname = `/${firstSegment}${remainingPath}`
+      console.log(`[MIDDLEWARE] Path-based routing: ${request.nextUrl.pathname} -> ${url.pathname}`)
+      return NextResponse.rewrite(url)
+    }
+  }
+  
   return NextResponse.next()
 }
 
