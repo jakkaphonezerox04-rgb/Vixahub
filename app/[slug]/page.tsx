@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
-import { createWebsiteFromSlug, getSpecialWebsiteData, isValidSlug, type Website } from "@/lib/website-data"
+import { getWebsiteBySlug, type Website } from "@/lib/firebase-websites"
 
 function ClonedSiteHomeContent() {
   const params = useParams<{ slug: string }>()
@@ -9,25 +9,20 @@ function ClonedSiteHomeContent() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const loadWebsite = () => {
+    const loadWebsite = async () => {
       try {
         console.log(`[CLONED-SITE] Loading website for slug: ${params.slug}`)
         
         // ตรวจสอบว่า slug ถูกต้องหรือไม่
-        if (!isValidSlug(params.slug)) {
+        if (!params.slug || params.slug.length === 0) {
           console.log(`[CLONED-SITE] Invalid slug: ${params.slug}`)
           setWebsite(null)
           setIsLoading(false)
           return
         }
         
-        // ลองหาข้อมูลพิเศษก่อน
-        let websiteData = getSpecialWebsiteData(params.slug)
-        
-        // ถ้าไม่มีข้อมูลพิเศษ ให้สร้างข้อมูลทั่วไป
-        if (!websiteData) {
-          websiteData = createWebsiteFromSlug(params.slug)
-        }
+        // ดึงข้อมูลเว็บไซต์จาก Firebase
+        const websiteData = await getWebsiteBySlug(params.slug)
         
         console.log(`[CLONED-SITE] Website data:`, websiteData)
         setWebsite(websiteData)
