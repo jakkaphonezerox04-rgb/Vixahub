@@ -38,3 +38,4 @@ NEXT_PUBLIC_FIREBASE_DATABASE_URL=https://vixahub-default-rtdb.asia-southeast1.f
 - Vercel ต้องใช้ Pro plan สำหรับ wildcard subdomains
 - หรือใช้ custom domain ที่รองรับ wildcard subdomains
 - ตรวจสอบว่า DNS records ถูกตั้งค่าถูกต้อง
+
