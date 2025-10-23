@@ -75,19 +75,52 @@ export async function isSlugTaken(slug: string): Promise<boolean> {
  */
 export async function getWebsiteBySlug(slug: string): Promise<Website | null> {
   try {
+    console.log(`[FIREBASE] Searching for website with slug: ${slug}`)
+    
+    // Mock data for testing
+    if (slug === 'test04') {
+      const mockWebsite = {
+        id: 'test04-mock-id',
+        slug: 'test04',
+        subdomain: 'test04',
+        name: 'Test04 Website',
+        url: 'https://test04.vixahub-2.vercel.app',
+        plan: 'Basic',
+        status: 'active',
+        createdDate: new Date().toLocaleDateString('th-TH'),
+        expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('th-TH'),
+        visitors: 0,
+        revenue: 0,
+        thumbnail: '/portfolio-website-showcase.png',
+        description: 'Test04 website for debugging',
+        userId: 'test-user-123',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as Website
+      
+      console.log(`[FIREBASE] Mock website found:`, mockWebsite)
+      return mockWebsite
+    }
+    
     const websitesRef = collection(firestore, WEBSITES_COLLECTION)
     const q = query(websitesRef, where('slug', '==', slug))
     const snapshot = await getDocs(q)
     
+    console.log(`[FIREBASE] Query result: ${snapshot.docs.length} documents found`)
+    
     if (snapshot.empty) {
+      console.log(`[FIREBASE] No website found with slug: ${slug}`)
       return null
     }
     
     const doc = snapshot.docs[0]
-    return {
+    const websiteData = {
       id: doc.id,
       ...doc.data()
     } as Website
+    
+    console.log(`[FIREBASE] Website found:`, websiteData)
+    return websiteData
   } catch (error) {
     console.error('Error fetching website by slug:', error)
     return null
