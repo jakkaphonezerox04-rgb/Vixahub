@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       slug: 'test',
       subdomain: 'test',
       name: 'Test Website',
-      url: 'https://test.vixahub-2.vercel.app',
+      url: 'https://vixahub-2.vercel.app/test',
       plan: 'Basic',
       status: 'active',
       createdDate: new Date().toLocaleDateString('th-TH'),
