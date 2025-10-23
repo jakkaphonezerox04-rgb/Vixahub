@@ -399,30 +399,21 @@ function ClonedSiteAdmin() {
       console.log("   - leaveTypes:", siteSettings.leaveTypes)
       console.log("   - deliveryTypes:", siteSettings.deliveryTypes)
       
-      // 1. บันทึก settings ใน cloned_sites
-      const settingsRef = doc(firestore, `cloned_sites/${params.slug}/settings`, 'site_settings')
-      await setDoc(settingsRef, siteSettings, { merge: true })
+      // ใช้ API route แทนการเรียก Firestore โดยตรง
+      const { saveSiteSettingsWithRetry } = await import('@/lib/api-retry')
+      const result = await saveSiteSettingsWithRetry(params.slug, siteSettings)
       
-      // 2. อัปเดตชื่อเว็บไซต์ใน websites collection
-      console.log("💾 กำลังอัปเดตชื่อเว็บไซต์ใน websites collection...")
-      const websitesRef = collection(firestore, 'websites')
-      const websiteQuery = query(websitesRef, where('slug', '==', params.slug))
-      const websiteSnapshot = await getDocs(websiteQuery)
-      
-      if (!websiteSnapshot.empty) {
-        const websiteDoc = websiteSnapshot.docs[0]
-        const websiteDocRef = doc(firestore, 'websites', websiteDoc.id)
-        await updateDoc(websiteDocRef, {
-          name: siteSettings.websiteName
-        })
-        console.log("✅ อัปเดตชื่อเว็บไซต์ใน websites สำเร็จ!")
+      if (result.success) {
+        console.log("✅ บันทึก Settings สำเร็จ!")
+        setMessage({ type: 'success', text: result.message || 'บันทึกการตั้งค่าสำเร็จ' })
         
         // อัปเดต siteName ใน state
-        setSiteName(siteSettings.websiteName)
+        if (result.data?.websiteName) {
+          setSiteName(result.data.websiteName)
+        }
+      } else {
+        throw new Error(result.error || 'Unknown error')
       }
-      
-      console.log("✅ บันทึก Settings สำเร็จ!")
-      setMessage({ type: 'success', text: 'บันทึกการตั้งค่าสำเร็จ' })
     } catch (error) {
       console.error("❌ Error saving settings:", error)
       setMessage({ type: 'error', text: 'เกิดข้อผิดพลาดในการบันทึก' })

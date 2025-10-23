@@ -339,11 +339,16 @@ function ClonedSiteAdmin() {
       console.log("   - leaveTypes:", siteSettings.leaveTypes)
       console.log("   - deliveryTypes:", siteSettings.deliveryTypes)
       
-      const settingsRef = doc(firestore, `cloned_sites/${params.id}/settings`, 'site_settings')
-      await setDoc(settingsRef, siteSettings, { merge: true })
+      // ใช้ API route แทนการเรียก Firestore โดยตรง
+      const { savePreviewSettingsWithRetry } = await import('@/lib/api-retry')
+      const result = await savePreviewSettingsWithRetry(params.id, siteSettings)
       
-      console.log("✅ บันทึก Settings สำเร็จ!")
-      setMessage({ type: 'success', text: 'บันทึกการตั้งค่าสำเร็จ' })
+      if (result.success) {
+        console.log("✅ บันทึก Settings สำเร็จ!")
+        setMessage({ type: 'success', text: result.message || 'บันทึกการตั้งค่าสำเร็จ' })
+      } else {
+        throw new Error(result.error || 'Unknown error')
+      }
     } catch (error) {
       console.error("❌ Error saving settings:", error)
       setMessage({ type: 'error', text: 'เกิดข้อผิดพลาดในการบันทึก' })

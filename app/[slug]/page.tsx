@@ -1,41 +1,39 @@
 "use client"
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
+import { createWebsiteFromSlug, getSpecialWebsiteData, isValidSlug, type Website } from "@/lib/website-data"
 
 function ClonedSiteHomeContent() {
   const params = useParams<{ slug: string }>()
-  const [website, setWebsite] = useState<any>(null)
+  const [website, setWebsite] = useState<Website | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const loadWebsite = async () => {
+    const loadWebsite = () => {
       try {
         console.log(`[CLONED-SITE] Loading website for slug: ${params.slug}`)
         
-        // Create website data directly without Firebase for now
-        const websiteData = {
-          id: `temp-${params.slug}-${Date.now()}`,
-          slug: params.slug,
-          subdomain: params.slug,
-          name: `${params.slug.charAt(0).toUpperCase() + params.slug.slice(1)} Website`,
-          url: `https://vixahub-2.vercel.app/${params.slug}`,
-          plan: 'Basic',
-          status: 'active',
-          createdDate: new Date().toLocaleDateString('th-TH'),
-          expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('th-TH'),
-          visitors: 0,
-          revenue: 0,
-          thumbnail: '/portfolio-website-showcase.png',
-          description: `Website for ${params.slug}`,
-          userId: 'temp-user',
-          createdAt: new Date(),
-          updatedAt: new Date(),
+        // ตรวจสอบว่า slug ถูกต้องหรือไม่
+        if (!isValidSlug(params.slug)) {
+          console.log(`[CLONED-SITE] Invalid slug: ${params.slug}`)
+          setWebsite(null)
+          setIsLoading(false)
+          return
+        }
+        
+        // ลองหาข้อมูลพิเศษก่อน
+        let websiteData = getSpecialWebsiteData(params.slug)
+        
+        // ถ้าไม่มีข้อมูลพิเศษ ให้สร้างข้อมูลทั่วไป
+        if (!websiteData) {
+          websiteData = createWebsiteFromSlug(params.slug)
         }
         
         console.log(`[CLONED-SITE] Website data:`, websiteData)
         setWebsite(websiteData)
       } catch (error) {
         console.error("Error loading website:", error)
+        setWebsite(null)
       } finally {
         setIsLoading(false)
       }
