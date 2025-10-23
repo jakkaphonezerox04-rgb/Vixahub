@@ -1,0 +1,24 @@
+# Firebase Environment Variables for Vercel
+# Copy these to Vercel Dashboard > Settings > Environment Variables
+
+# Firebase Client Config (for frontend)
+NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyDsxkKY3M9476plC9NUIIeuXrPfH0EUB8Y
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=vixahub.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_DATABASE_URL=https://vixahub-default-rtdb.asia-southeast1.firebasedatabase.app
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=vixahub
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=vixahub.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=336784504819
+NEXT_PUBLIC_FIREBASE_APP_ID=1:336784504819:web:958bad204051e9c1534486
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-D4C98J4Y8H
+
+# Firebase Admin Config (for backend)
+FIREBASE_PROJECT_ID=vixahub
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@vixahub.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_HERE\n-----END PRIVATE KEY-----\n"
+
+# Instructions:
+# 1. Go to Firebase Console > Project Settings > Service Accounts
+# 2. Click "Generate new private key"
+# 3. Download the JSON file
+# 4. Copy the values from the JSON file to the variables above
+# 5. Add these variables to Vercel Dashboard > Settings > Environment Variables

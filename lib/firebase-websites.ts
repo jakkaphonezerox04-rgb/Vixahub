@@ -77,25 +77,25 @@ export async function getWebsiteBySlug(slug: string): Promise<Website | null> {
   try {
     console.log(`[FIREBASE] Searching for website with slug: ${slug}`)
     
-    // Mock data for testing
+    // Temporary mock data for testing - REMOVE when real data is available
     if (slug === 'test04') {
       const mockWebsite = {
         id: 'test04-mock-id',
         slug: 'test04',
         subdomain: 'test04',
         name: 'Test04 Website',
-        url: 'https://test04.vixahub-2.vercel.app',
+        url: 'https://vixahub-2.vercel.app/test04',
         plan: 'Basic',
-        status: 'active',
-        createdDate: new Date().toLocaleDateString('th-TH'),
-        expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('th-TH'),
+        status: 'active' as const,
+        createdDate: '23 ต.ค. 2567',
+        expiryDate: '23 พ.ย. 2567',
         visitors: 0,
         revenue: 0,
         thumbnail: '/portfolio-website-showcase.png',
         description: 'Test04 website for debugging',
         userId: 'test-user-123',
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date() as any,
+        updatedAt: new Date() as any,
       } as Website
       
       console.log(`[FIREBASE] Mock website found:`, mockWebsite)
@@ -240,7 +240,7 @@ export async function createWebsite(data: {
       slug,
       subdomain: data.subdomain,
       name: data.name.trim(),
-      url: `https://${data.subdomain}.vixahub-2.vercel.app`,
+      url: `https://vixahub-2.vercel.app/${data.subdomain}`,
       plan: data.plan,
       status: 'active',
       createdDate: now.toLocaleDateString('th-TH', { 

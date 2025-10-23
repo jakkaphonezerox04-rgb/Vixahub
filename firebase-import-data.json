@@ -1,0 +1,79 @@
+{
+  "websites": {
+    "test04": {
+      "slug": "test04",
+      "subdomain": "test04",
+      "name": "Test04 Website",
+      "url": "https://test04.vixahub-2.vercel.app",
+      "plan": "Basic",
+      "status": "active",
+      "createdDate": "23 ต.ค. 2567",
+      "expiryDate": "23 พ.ย. 2567",
+      "visitors": 0,
+      "revenue": 0,
+      "thumbnail": "/portfolio-website-showcase.png",
+      "description": "Test04 website for debugging",
+      "userId": "test-user-123",
+      "createdAt": "2024-10-23T12:00:00.000Z",
+      "updatedAt": "2024-10-23T12:00:00.000Z"
+    }
+  },
+  "cloned_sites": {
+    "test04": {
+      "websiteId": "test04",
+      "subdomain": "test04",
+      "slug": "test04",
+      "name": "Test04 Website",
+      "plan": "Basic",
+      "status": "active",
+      "userId": "test-user-123",
+      "createdAt": "2024-10-23T12:00:00.000Z",
+      "updatedAt": "2024-10-23T12:00:00.000Z",
+      "settings": {
+        "site_settings": {
+          "siteName": "Test04 Website",
+          "siteDescription": "Test04 website for debugging",
+          "siteLogo": "",
+          "siteFavicon": "",
+          "primaryColor": "#8B5CF6",
+          "secondaryColor": "#06B6D4",
+          "fontFamily": "Kanit",
+          "customCSS": "",
+          "customJS": "",
+          "analyticsCode": "",
+          "seoTitle": "Test04 Website",
+          "seoDescription": "Test04 website for debugging",
+          "seoKeywords": "",
+          "socialMedia": {
+            "facebook": "",
+            "twitter": "",
+            "instagram": "",
+            "youtube": "",
+            "tiktok": ""
+          },
+          "contactInfo": {
+            "email": "",
+            "phone": "",
+            "address": "",
+            "website": ""
+          },
+          "leaveTypes": ["ป่วย", "ลากิจ", "ลาพักผ่อน", "อื่นๆ"],
+          "deliveryTypes": ["อาหาร", "ของใช้", "เอกสาร", "อื่นๆ"],
+          "reportTypes": ["ปัญหาทางเทคนิค", "ข้อเสนอแนะ", "การใช้งาน", "อื่นๆ"],
+          "fineItems": [
+            { "name": "มาสาย", "amount": 50 },
+            { "name": "ไม่มาเรียน", "amount": 100 },
+            { "name": "ไม่ส่งงาน", "amount": 200 }
+          ],
+          "webhookUrls": {
+            "leaveWebhookUrl": "",
+            "deliveryWebhookUrl": "",
+            "reportWebhookUrl": "",
+            "fineWebhookUrl": ""
+          }
+        }
+      }
+    }
+  }
+}
+
