@@ -70,3 +70,43 @@ export async function savePreviewSettingsWithRetry(id: string, siteSettings: any
     return response.json()
   })
 }
+
+// Function for loading site data with retry
+export async function loadSiteDataWithRetry(slug: string, dataType: string) {
+  return apiRetry(async () => {
+    const response = await fetch('/api/load-site-data', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ slug, dataType }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.error || `HTTP ${response.status}`)
+    }
+
+    return response.json()
+  })
+}
+
+// Function for updating site data with retry
+export async function updateSiteDataWithRetry(slug: string, action: string, data: any) {
+  return apiRetry(async () => {
+    const response = await fetch('/api/update-site-data', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ slug, action, data }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.error || `HTTP ${response.status}`)
+    }
+
+    return response.json()
+  })
+}

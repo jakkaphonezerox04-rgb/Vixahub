@@ -353,13 +353,12 @@ function ClonedSiteAdmin() {
 
   const loadSettings = async () => {
     try {
-      const settingsRef = doc(firestore, `cloned_sites/${params.slug}/settings`, 'site_settings')
-      const settingsDoc = await getDoc(settingsRef)
+      const { loadSiteDataWithRetry } = await import('@/lib/api-retry')
+      const result = await loadSiteDataWithRetry(params.slug, 'settings')
       
-      if (settingsDoc.exists()) {
-        const data = settingsDoc.data()
-        setSiteSettings(prev => ({ ...prev, ...data as Partial<SiteSettings> }))
-        console.log("✅ Settings โหลดสำเร็จ:", data)
+      if (result.success && result.data.settings) {
+        setSiteSettings(prev => ({ ...prev, ...result.data.settings as Partial<SiteSettings> }))
+        console.log("✅ Settings โหลดสำเร็จ:", result.data.settings)
       } else {
         // Create default settings if not exists
         console.log("⚠️ ไม่พบ Settings, กำลังสร้างค่าเริ่มต้น...")
@@ -382,7 +381,9 @@ function ClonedSiteAdmin() {
           ]
         }
         
-        await setDoc(settingsRef, defaultSettings)
+        // ใช้ API route สำหรับบันทึก settings เริ่มต้น
+        const { saveSiteSettingsWithRetry } = await import('@/lib/api-retry')
+        await saveSiteSettingsWithRetry(params.slug, defaultSettings)
         setSiteSettings(defaultSettings)
         console.log("✅ สร้าง Settings เริ่มต้นสำเร็จ!")
       }
@@ -422,21 +423,13 @@ function ClonedSiteAdmin() {
 
   const loadUsers = async () => {
     try {
-      const usersRef = collection(firestore, `cloned_sites/${params.slug}/users`)
-      const snapshot = await getDocs(usersRef)
-      const usersList: User[] = []
-      snapshot.forEach((doc) => {
-        const data = doc.data()
-        usersList.push({
-          id: doc.id,
-          username: data.username || "",
-          email: data.email || "",
-          role: data.role || "member",
-      houseName: data.houseName || "",
-          createdAt: data.createdAt
-        })
-      })
-      setUsers(usersList)
+      const { loadSiteDataWithRetry } = await import('@/lib/api-retry')
+      const result = await loadSiteDataWithRetry(params.slug, 'users')
+      
+      if (result.success && result.data.users) {
+        setUsers(result.data.users)
+        console.log("✅ Users โหลดสำเร็จ:", result.data.users.length, "users")
+      }
     } catch (error) {
       console.error("Error loading users:", error)
     }
@@ -445,33 +438,23 @@ function ClonedSiteAdmin() {
   const loadLeaveRequests = async () => {
     try {
       console.log("📥 กำลังโหลด Leave Requests จาก:", `cloned_sites/${params.slug}/leave_requests`)
-      const leavesRef = collection(firestore, `cloned_sites/${params.slug}/leave_requests`)
-      const snapshot = await getDocs(leavesRef)
-      console.log("📊 พบ Leave Requests:", snapshot.size, "รายการ")
+      const { loadSiteDataWithRetry } = await import('@/lib/api-retry')
+      const result = await loadSiteDataWithRetry(params.slug, 'leave_requests')
       
-      const leavesList: LeaveRequest[] = []
-      snapshot.forEach((doc) => {
-        const data = doc.data()
-        console.log("  - Document:", doc.id, data)
-        leavesList.push({
-          id: doc.id,
-          username: data.username || "",
-          userId: data.userId || "",
-          leaveTypes: data.leaveTypes || [],
-          startDate: data.startDate || "",
-          endDate: data.endDate || "",
-          reason: data.reason || "",
-          status: data.status || "pending",
-          createdAt: data.createdAt
+      if (result.success && result.data.leaveRequests) {
+        const leavesList = result.data.leaveRequests
+        console.log("📊 พบ Leave Requests:", leavesList.length, "รายการ")
+        
+        // Sort by createdAt (newest first)
+        leavesList.sort((a: any, b: any) => {
+          const timeA = a.createdAt?.toDate?.() || new Date(0)
+          const timeB = b.createdAt?.toDate?.() || new Date(0)
+          return timeB.getTime() - timeA.getTime()
         })
-      })
-      leavesList.sort((a, b) => {
-        const timeA = a.createdAt?.toDate?.() || new Date(0)
-        const timeB = b.createdAt?.toDate?.() || new Date(0)
-        return timeB.getTime() - timeA.getTime()
-      })
-      setLeaveRequests(leavesList)
-      console.log("✅ Leave Requests โหลดเสร็จ, แสดง:", leavesList.length, "รายการ")
+        
+        setLeaveRequests(leavesList)
+        console.log("✅ Leave Requests โหลดเสร็จ, แสดง:", leavesList.length, "รายการ")
+      }
     } catch (error) {
       console.error("❌ Error loading leave requests:", error)
     }
@@ -727,11 +710,18 @@ function ClonedSiteAdmin() {
 
   const handleUpdateUserRole = async (userId: string, newRole: string) => {
     try {
-      await updateDoc(doc(firestore, `cloned_sites/${params.slug}/users`, userId), {
-        role: newRole
+      const { updateSiteDataWithRetry } = await import('@/lib/api-retry')
+      const result = await updateSiteDataWithRetry(params.slug, 'updateUserRole', { 
+        userId, 
+        newRole 
       })
-      setMessage({ type: 'success', text: 'อัปเดต Role สำเร็จ' })
-      await loadUsers()
+      
+      if (result.success) {
+        setMessage({ type: 'success', text: result.message })
+        await loadUsers()
+      } else {
+        throw new Error(result.error || 'Unknown error')
+      }
     } catch (error) {
       console.error("Error updating role:", error)
       setMessage({ type: 'error', text: 'เกิดข้อผิดพลาด' })
@@ -742,10 +732,16 @@ function ClonedSiteAdmin() {
     if (!confirm('ต้องการลบผู้ใช้นี้หรือไม่?')) return
     
     try {
-      await deleteDoc(doc(firestore, `cloned_sites/${params.slug}/users`, userId))
-      setMessage({ type: 'success', text: 'ลบผู้ใช้สำเร็จ' })
-      await loadUsers()
-      await loadStats()
+      const { updateSiteDataWithRetry } = await import('@/lib/api-retry')
+      const result = await updateSiteDataWithRetry(params.slug, 'deleteUser', { userId })
+      
+      if (result.success) {
+        setMessage({ type: 'success', text: result.message })
+        await loadUsers()
+        await loadStats()
+      } else {
+        throw new Error(result.error || 'Unknown error')
+      }
     } catch (error) {
       console.error("Error deleting user:", error)
       setMessage({ type: 'error', text: 'เกิดข้อผิดพลาดในการลบผู้ใช้' })
@@ -754,12 +750,16 @@ function ClonedSiteAdmin() {
 
   const handleApproveLeave = async (leaveId: string) => {
     try {
-      await updateDoc(doc(firestore, `cloned_sites/${params.slug}/leave_requests`, leaveId), {
-        status: 'approved'
-      })
-      setMessage({ type: 'success', text: 'อนุมัติคำขอสำเร็จ' })
-      await loadLeaveRequests()
-      await loadStats()
+      const { updateSiteDataWithRetry } = await import('@/lib/api-retry')
+      const result = await updateSiteDataWithRetry(params.slug, 'approveLeave', { leaveId })
+      
+      if (result.success) {
+        setMessage({ type: 'success', text: result.message })
+        await loadLeaveRequests()
+        await loadStats()
+      } else {
+        throw new Error(result.error || 'Unknown error')
+      }
     } catch (error) {
       console.error("Error approving leave:", error)
       setMessage({ type: 'error', text: 'เกิดข้อผิดพลาด' })
@@ -768,12 +768,16 @@ function ClonedSiteAdmin() {
 
   const handleRejectLeave = async (leaveId: string) => {
     try {
-      await updateDoc(doc(firestore, `cloned_sites/${params.slug}/leave_requests`, leaveId), {
-        status: 'rejected'
-      })
-      setMessage({ type: 'success', text: 'ปฏิเสธคำขอสำเร็จ' })
-      await loadLeaveRequests()
-      await loadStats()
+      const { updateSiteDataWithRetry } = await import('@/lib/api-retry')
+      const result = await updateSiteDataWithRetry(params.slug, 'rejectLeave', { leaveId })
+      
+      if (result.success) {
+        setMessage({ type: 'success', text: result.message })
+        await loadLeaveRequests()
+        await loadStats()
+      } else {
+        throw new Error(result.error || 'Unknown error')
+      }
     } catch (error) {
       console.error("Error rejecting leave:", error)
       setMessage({ type: 'error', text: 'เกิดข้อผิดพลาด' })
@@ -783,12 +787,19 @@ function ClonedSiteAdmin() {
   const handleToggleFineStatus = async (fineId: string, currentStatus: string) => {
     const newStatus = currentStatus === 'ชำระแล้ว' ? 'ยังไม่ชำระ' : 'ชำระแล้ว'
     try {
-      await updateDoc(doc(firestore, `cloned_sites/${params.slug}/fine_records`, fineId), {
-        status: newStatus
+      const { updateSiteDataWithRetry } = await import('@/lib/api-retry')
+      const result = await updateSiteDataWithRetry(params.slug, 'toggleFineStatus', { 
+        fineId, 
+        newStatus 
       })
-      setMessage({ type: 'success', text: `เปลี่ยนสถานะเป็น ${newStatus}` })
-      await loadFineRecords()
-      await loadStats()
+      
+      if (result.success) {
+        setMessage({ type: 'success', text: result.message })
+        await loadFineRecords()
+        await loadStats()
+      } else {
+        throw new Error(result.error || 'Unknown error')
+      }
     } catch (error) {
       console.error("Error updating fine status:", error)
       setMessage({ type: 'error', text: 'เกิดข้อผิดพลาด' })

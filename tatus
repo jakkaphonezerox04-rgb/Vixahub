@@ -1,0 +1,3 @@
+[33m2aea010[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Fix save settings error
+[33ma25553d[m Fix cloned site to show website directly without Firebase dependency
+[33mc93918d[m Remove mock data and implement real dynamic website system
